@@ -61,10 +61,42 @@ while (true)
             }
         case "POST":
             {
+                var stream = request.InputStream;
+                var reader = new StreamReader(stream);
+
+                var jsonStr = reader.ReadToEnd();
+
+                var keyValue = JsonSerializer.Deserialize<KeyValue>(jsonStr);
+
+                if (keyValue is not null)
+                {
+
+                    var response = context.Response;
+
+                    var dbCon = new KeyValueDbContext();
+                    var key = keyValue.Key;
+
+                    if (dbCon.Find<KeyValue>(key) == null)
+                    {
+                        //if (!requestCounts.ContainsKey(key))
+                        //    requestCounts[key] = 0;
+
+                        //requestCounts[key]++;
+
+                        dbCon.Add(keyValue);
+                        dbCon.SaveChanges();
+                        response.StatusCode = (int)HttpStatusCode.OK;
+
+                    }
+                    else
+                        response.StatusCode = (int)HttpStatusCode.Found;
+
+                    response.Close();
+                }
+
 
                 break;
             }
-
         case "PUT":
             {
 

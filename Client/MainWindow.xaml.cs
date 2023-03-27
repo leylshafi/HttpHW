@@ -1,5 +1,6 @@
 ﻿using Client.Command;
 using Client.Model;
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -15,7 +16,7 @@ public partial class MainWindow : Window
     public ICommand PostCommand { get; set; }
 
     private HttpClient httpClient;
-    
+
 
     public int Value
     {
@@ -48,10 +49,35 @@ public partial class MainWindow : Window
         httpClient = new();
 
         GetCommand = new RelayCommand(ExecuteGetCommand);
-        // PostCommand = new RelayCommand(ExecutePostCommand);
+        PostCommand = new RelayCommand(ExecutePostCommand);
         // PutCommand = new RelayCommand(ExecutePutCommand);
     }
-    
+
+    private async void ExecutePostCommand(object? obj)
+    {
+        if (Key is not null)
+        {
+            var keyValue = new KeyValue()
+            {
+                Key = Key,
+                Value = Value
+
+            };
+            var jsonStr = JsonSerializer.Serialize(keyValue);
+
+            var content = new StringContent(jsonStr);
+
+            var response = await httpClient.PostAsync("http://localhost:27001/", content);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                MessageBox.Show("Posted Succesfully");
+            else
+                MessageBox.Show("Error Ocurred");
+
+            Key=string.Empty;
+            Value = 0;
+        }
+    }
 
     private async void ExecuteGetCommand(object? obj)
     {
