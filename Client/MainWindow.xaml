@@ -15,16 +15,19 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <TextBox Width="150" Height="50" Text="{Binding Key,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
+        <TextBox Grid.ColumnSpan="2"  Width="200" Height="50" Text="{Binding Key,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
                  HorizontalContentAlignment="Center"/>
-        <TextBox Width="150" Height="50" Grid.Column="1" Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
+        <TextBox Grid.ColumnSpan="2" Grid.Column="2" Width="200" Height="50" Text="{Binding Value,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"
                  HorizontalContentAlignment="Center"/>
 
-        <Button Grid.Row="1" Width="150" Height="50" Content="Get" Command="{Binding GetCommand}"/>
-        <Button Grid.Row="1" Grid.ColumnSpan="2" Width="150" Height="50" Content="Put" Command="{Binding PutCommand}"/>
-        <Button Grid.Row="1" Grid.Column="1" Width="150" Height="50" Content="Post" Command="{Binding PostCommand}"/>
+        <Button Grid.Row="1"  Width="150" Height="50" Content="Get" Command="{Binding GetCommand}"/>
+        <Button Grid.Row="1" Grid.Column="1" Width="150" Height="50" Content="Put" Command="{Binding PutCommand}"/>
+        <Button Grid.Row="1" Grid.Column="2" Width="150" Height="50" Content="Post" Command="{Binding PostCommand}"/>
+        <Button Grid.Row="1" Grid.Column="3" Width="150" Height="50" Content="Reset" Command="{Binding ResetCommand}"/>
 
     </Grid>
 </Window>

@@ -1,4 +1,7 @@
-﻿using Server.Contexts;
+﻿using Azure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Server.Contexts;
 using Server.Model;
 using System.Net;
 using System.Text.Json;
@@ -78,11 +81,6 @@ while (true)
 
                     if (dbCon.Find<KeyValue>(key) == null)
                     {
-                        //if (!requestCounts.ContainsKey(key))
-                        //    requestCounts[key] = 0;
-
-                        //requestCounts[key]++;
-
                         dbCon.Add(keyValue);
                         dbCon.SaveChanges();
                         response.StatusCode = (int)HttpStatusCode.OK;
@@ -99,6 +97,36 @@ while (true)
             }
         case "PUT":
             {
+                var stream = request.InputStream;
+                var reader = new StreamReader(stream);
+
+                var jsonStr = reader.ReadToEnd();
+
+                Console.WriteLine(jsonStr);
+
+                var keyValue = JsonSerializer.Deserialize<KeyValue>(jsonStr);
+
+                var response = context.Response;
+
+                var dbCon = new KeyValueDbContext();
+
+                var temp = dbCon.Find<KeyValue>(keyValue.Key);
+
+                if (temp != null)
+                {
+                    temp.Value = keyValue.Value;
+
+                    dbCon.SaveChanges();
+                    response.StatusCode = (int)HttpStatusCode.OK;
+
+                }
+                else
+                    response.StatusCode = (int)HttpStatusCode.NotFound;
+
+                response.Close();
+
+
+
 
                 break;
             }

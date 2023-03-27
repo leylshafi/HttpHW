@@ -14,6 +14,7 @@ public partial class MainWindow : Window
     public ICommand GetCommand { get; set; }
     public ICommand PutCommand { get; set; }
     public ICommand PostCommand { get; set; }
+    public ICommand ResetCommand { get; set; }
 
     private HttpClient httpClient;
 
@@ -50,7 +51,42 @@ public partial class MainWindow : Window
 
         GetCommand = new RelayCommand(ExecuteGetCommand);
         PostCommand = new RelayCommand(ExecutePostCommand);
-        // PutCommand = new RelayCommand(ExecutePutCommand);
+        PutCommand = new RelayCommand(ExecutePutCommand);
+        ResetCommand = new RelayCommand(ExecuteResetCommand);
+    }
+
+    private void ExecuteResetCommand(object? obj)
+    {
+        Key = string.Empty;
+        Value = 0;
+    }
+
+    private async void ExecutePutCommand(object? obj)
+    {
+        if (Key is not null)
+        {
+            var keyValue = new KeyValue()
+            {
+                Key = Key,
+                Value = Value
+            };
+
+            var jsonStr = JsonSerializer.Serialize(keyValue);
+
+            var content = new StringContent(jsonStr);
+
+            var response = await httpClient.PutAsync("http://localhost:27001/", content);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+                MessageBox.Show("Putted Succesfully");
+            else
+                MessageBox.Show("Key doesn't exist");
+
+
+            Key = string.Empty;
+            Value = 0;
+
+        }
     }
 
     private async void ExecutePostCommand(object? obj)
@@ -74,7 +110,7 @@ public partial class MainWindow : Window
             else
                 MessageBox.Show("Error Ocurred");
 
-            Key=string.Empty;
+            Key = string.Empty;
             Value = 0;
         }
     }
