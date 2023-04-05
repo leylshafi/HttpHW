@@ -37,29 +37,76 @@ while (true)
                 if (!requestCounts.ContainsKey(key))
                     requestCounts[key] = 0;
 
+                requestCounts[key]++;
 
                 var dbContext = new KeyValueDbContext();
 
-                var temp = dbContext.Find<KeyValue>(key);
-
-                if (temp is not null)
+                if (requestCounts[key] >= 3)
                 {
-                    response.ContentType = "application/json";
+                    var clientResponse = await client.GetAsync($"http://localhost:27002/?key={key}");
 
-                    response.StatusCode = (int)HttpStatusCode.OK;
+                    if (clientResponse.StatusCode == HttpStatusCode.OK)
+                    {
+                        response.ContentType = "application/json";
 
-                    var keyValue = temp;
-                    var jsonStr = JsonSerializer.Serialize(keyValue);
+                        response.StatusCode = (int)HttpStatusCode.OK;
+                        var jsonStr = await clientResponse.Content.ReadAsStringAsync();
 
-                    var writer = new StreamWriter(response.OutputStream);
-                    await writer.WriteAsync(jsonStr);
-                    writer.Flush();
+                        var writer = new StreamWriter(response.OutputStream);
+                        await writer.WriteAsync(jsonStr);
+                        writer.Flush();
+
+                    }
+                    else
+                    {
+                        var x = dbContext.Find<KeyValue>(key);
+
+                        if (x is not null)
+                        {
+                            response.ContentType = "application/json";
+
+                            response.StatusCode = (int)HttpStatusCode.OK;
+
+                            var keyValue = x;
+                            var jsonStr = JsonSerializer.Serialize(x);
+
+                            var writer = new StreamWriter(response.OutputStream);
+                            await writer.WriteAsync(jsonStr);
+                            writer.Flush();
+
+                            var content = new StringContent(jsonStr);
+                            await client.PostAsync("http://localhost:27002/", content);
+                        }
+                        else
+                            response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
+                }
+                else 
+                {
+
+                    var temp = dbContext.Find<KeyValue>(key);
+
+                    if (temp is not null)
+                    {
+                        response.ContentType = "application/json";
+
+                        response.StatusCode = (int)HttpStatusCode.OK;
+
+                        var keyValue = temp;
+                        var jsonStr = JsonSerializer.Serialize(keyValue);
+
+                        var writer = new StreamWriter(response.OutputStream);
+                        await writer.WriteAsync(jsonStr);
+                        writer.Flush();
+
+                    }
+                    else
+                        response.StatusCode = (int)HttpStatusCode.NotFound;
+                    
 
                 }
-                else
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                response.Close();
 
+                response.Close();
                 break;
             }
         case "POST":
@@ -124,10 +171,6 @@ while (true)
                     response.StatusCode = (int)HttpStatusCode.NotFound;
 
                 response.Close();
-
-
-
-
                 break;
             }
 

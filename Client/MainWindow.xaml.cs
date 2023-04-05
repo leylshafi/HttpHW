@@ -1,6 +1,5 @@
 ﻿using Client.Command;
 using Client.Model;
-using System;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
